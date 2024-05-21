@@ -49,5 +49,6 @@ import org.steamgifts.parser.Parser
 
 fun main() {
     val parser = Parser();
-    parser.parse();
+    parser.getRawGiveawayList();
 }
+

@@ -4,6 +4,7 @@ class PartialGiveaway(
     val title: String,
     val url: String,
     val participants: Int,
-    val price: Int
+    val price: Int,
+    val copies: Int
 )
 
