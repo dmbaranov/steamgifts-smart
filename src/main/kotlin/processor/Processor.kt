@@ -1,12 +1,18 @@
 package org.steamgifts.processor
 
 import org.steamgifts.giveaway.Giveaway
-import org.steamgifts.giveaway.PartialGiveaway
 
-class Processor(private val rawGiveaways: List<PartialGiveaway>) {
-    fun getGiveaways(): List<Giveaway> {
-        return listOf();
-//        return Giveaway(title, url, price, participants);
+class Processor() {
+    fun processGiveaways(giveaways: List<Giveaway>) {
+        giveaways
+            .sortedWith(compareBy { it.price })
+            .mapIndexed { index, giveaway -> giveaway.setPriceRank(index) }
+            .sortedWith(compareBy { it.participants })
+            .mapIndexed { index, giveaway -> giveaway.setParticipantsRank(index) }
+            .sortedWith(compareBy { it.performance })
+            .mapIndexed { index, giveaway -> giveaway.setPerformanceRank(index) }
+            .sortedWith(compareBy { it.rank })
+            .map { it.markAsProcessed() }
     }
 
     private fun getWorth() {}

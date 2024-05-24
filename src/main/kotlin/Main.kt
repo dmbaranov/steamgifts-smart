@@ -1,6 +1,7 @@
 package org.steamgifts
 
 import org.steamgifts.parser.Parser
+import org.steamgifts.processor.Processor
 
 /**
  * COMPLEX SOLUTION
@@ -48,7 +49,9 @@ import org.steamgifts.parser.Parser
  */
 
 fun main() {
-    val parser = Parser();
-    parser.getRawGiveawayList();
+    val parser = Parser()
+    val processor = Processor()
+    val (giveaways, points) = parser.getRawGiveawayListAndPoints()
+    val processedGiveaways = processor.processGiveaways(giveaways)
 }
 
