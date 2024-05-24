@@ -4,26 +4,9 @@ import org.steamgifts.giveaway.Giveaway
 
 class Processor() {
     fun processGiveaways(giveaways: List<Giveaway>) {
-        giveaways
-            .sortedWith(compareBy { it.price })
-            .mapIndexed { index, giveaway -> giveaway.setPriceRank(index) }
-            .sortedWith(compareBy { it.participants })
-            .mapIndexed { index, giveaway -> giveaway.setParticipantsRank(index) }
-            .sortedWith(compareBy { it.performance })
-            .mapIndexed { index, giveaway -> giveaway.setPerformanceRank(index) }
-            .sortedWith(compareBy { it.rank })
-            .map { it.markAsProcessed() }
+        giveaways.sortedBy { it.price }.forEachIndexed { index, giveaway -> giveaway.setPriceRank(index) }
+        giveaways.sortedBy { it.participants }.forEachIndexed { index, giveaway -> giveaway.setParticipantsRank(index) }
+        giveaways.sortedBy { it.performance }.forEachIndexed { index, giveaway -> giveaway.setPerformanceRank(index) }
+        giveaways.forEach { it.markAsProcessed() }
     }
-
-    private fun getWorth() {}
-
-    private fun getLikelyHood() {}
-
-    private fun getPriceRank() {}
-
-    private fun getWorthRank() {}
-
-    private fun getLikelyhoodRank() {}
-
-    private fun getFinalRank() {}
 }

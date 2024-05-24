@@ -12,19 +12,16 @@ class Giveaway(val title: String, val url: String, val price: Int, val participa
     val performance get() = (worthByPrice + worthByParticipants) / 2
     val rank get() = (priceRank + participantsRank + performanceRank) / 3
 
-    fun setPriceRank(priceRank: Int): Giveaway {
+    fun setPriceRank(priceRank: Int) {
         this.priceRank = priceRank
-        return this
     }
 
-    fun setParticipantsRank(participantsRank: Int): Giveaway {
+    fun setParticipantsRank(participantsRank: Int) {
         this.participantsRank = participantsRank
-        return this
     }
 
-    fun setPerformanceRank(performanceRank: Int): Giveaway {
+    fun setPerformanceRank(performanceRank: Int) {
         this.performanceRank = performanceRank
-        return this
     }
 
     fun markAsProcessed() {
