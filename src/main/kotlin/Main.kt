@@ -50,7 +50,7 @@ import org.steamgifts.processor.Processor
 
 fun main() {
     val parser = Parser()
-    val processor = Processor()
+    val processor = Processor(parser)
     val (giveaways, points) = parser.getRawGiveawayListAndPoints()
     val processedGiveaways = processor.processGiveaways(giveaways)
 }

@@ -9,6 +9,14 @@ import it.skrape.selects.html5.div
 import org.steamgifts.giveaway.Giveaway
 import java.util.ArrayList
 
+val HEADERS = mapOf(
+    "Accept" to "application/json, text/javascript, */*; q=0.01",
+    "Accept-Encoding" to "gzip, deflate, br",
+    "Content-Type" to "application/x-www-form-urlencoded; charset=UTF-8",
+    "User-Agent" to "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36",
+    "X-Requested-With" to "XMLHttpRequest"
+)
+
 class Parser {
     fun getRawGiveawayListAndPoints(): Pair<List<Giveaway>, Int> {
         var currentPoints: Int = 0
@@ -16,6 +24,7 @@ class Parser {
             request {
                 // TODO: add User-Agent as well, also check for other headers
                 url = "https://steamgifts.com"
+                headers = HEADERS
             }
 
             response {
@@ -56,11 +65,34 @@ class Parser {
                     }
                 }
             }
-        }.also { it.filter { it.price < currentPoints } }
+        }
 
 
 
         return Pair(giveawaysList, currentPoints)
+    }
+
+    fun getCanJoinGiveaway(giveawayUrl: String): Boolean {
+        return skrape(HttpFetcher) {
+            request {
+                url = giveawayUrl
+                headers = HEADERS
+            }
+
+            extractIt<Boolean> {
+                htmlDocument {
+                    relaxed = true
+
+                    div {
+                        withClass = ".sidebar__entry-insert:not(is-hidden)"
+                        findAll {
+                            size == 1
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
 
 

@@ -28,7 +28,9 @@ class Giveaway(val title: String, val url: String, val price: Int, val participa
         this.processed = true;
     }
 
-    fun joinGiveaway() {
-        println("Joining $title with url $url")
+    fun joinGiveaway(): Boolean {
+        println("Joining $title with url $url, send POST request")
+
+        return true;
     }
 }
