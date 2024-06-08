@@ -2,65 +2,34 @@ package org.steamgifts
 
 import org.steamgifts.parser.Parser
 import org.steamgifts.processor.Processor
+import java.util.concurrent.TimeUnit
+import kotlin.system.exitProcess
 
-/**
- * COMPLEX SOLUTION
- * const worth = 1; // when we win, it's a worth
- *
- * const populatedData = data.map(item => ({
- *     ...item,
- *     participants: item.rawParticipants / item.copies,
- * })).map(item => ({
- *     ...item,
- *     worthByPrice: worth / item.price,
- *     worthByParticipants: worth / item.participants,
- * })).map(item => ({
- *     ...item,
- *     likelyhood: (item.worthByPrice + item.worthByParticipants) / 2,
- * }));
- *
- * const sortedByPriceRank = populatedData.sort((a, b) => b.worthByPrice === a.worthByPrice ? b.worthByParticipants - a.worthByParticipants : b.worthByPrice - a.worthByPrice).map((item, index) => ({
- *     ...item,
- *     priceRank: index + 1,
- * }));
- *
- * const sortedByWorthRank = sortedByPriceRank.sort((a, b) => b.worthByParticipants - a.worthByParticipants).map((item, index) => ({
- *     ...item,
- *     worthRank: index + 1,
- * }));
- *
- * const sortedByLikelyhoodRank = sortedByWorthRank.sort((a, b) => b.likelyhood - a.likelyhood).map((item, index) => ({
- *     ...item,
- *     likelyhoodRank: index + 1,
- * }));
- *
- * const result = sortedByLikelyhoodRank.map((item) => ({
- *     ...item,
- *     avgRank: (item.priceRank + item.worthRank + item.likelyhoodRank) / 3,
- * })).sort((a, b) => a.avgRank - b.avgRank);
- */
-
-/**
- * EASY SOLUTION
- * const testSorted = data.map(i => ({
- *     ...i,
- *     participants: i.rawParticipants / i.copies,
- * })).sort((a, b) => a.price / (1 / (a.rawParticipants / a.copies)) - b.price / (1 / (b.rawParticipants / b.copies)));
- */
 
 fun main() {
     val parser = Parser()
     val processor = Processor(parser)
-    val giveaways = parser.getRawGiveaways()
-    val points = parser.getCurrentPoints()
+    var loopCount = 0
 
-    if (points == null) {
-        println("Cannot get points, something went wrong")
-        return
+    while (true) {
+        println("Starting loop ${++loopCount}")
+
+        val giveaways = parser.getRawGiveaways()
+        val points = parser.getCurrentPoints()
+
+        if (points == null) {
+            println("Cannot get points, something went wrong")
+            exitProcess(1)
+        }
+
+        val processedGiveaways = processor.filterGiveaways(giveaways, points).also { processor.processGiveaways(it) }
+        val sortedGiveaways = processedGiveaways.sortedBy { it.rank }
+
+        println("Handling ${sortedGiveaways.size}, current points: $points")
+
+        sortedGiveaways.forEach { processor.attemptJoinGiveaway(it, points) }
+
+        println("Loop done, going to sleep")
+        TimeUnit.MINUTES.sleep((120..180).random().toLong())
     }
-
-    val processedGiveaways = processor.filterGiveaways(giveaways, points).also { processor.processGiveaways(it) }
-    val sortedGiveaways = processedGiveaways.sortedBy { it.rank }
-
-    sortedGiveaways.forEach { processor.attemptJoinGiveaway(it, points) }
 }

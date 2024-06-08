@@ -4,16 +4,16 @@ import org.jsoup.Connection
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.steamgifts.giveaway.Giveaway
+import java.util.concurrent.TimeUnit
 
 
+const val BASE_URL = "https://www.steamgifts.com"
 val HEADERS = mapOf(
     "Accept" to "application/json, text/javascript, */*; q=0.01",
     "Accept-Encoding" to "gzip, deflate, br",
     "Content-Type" to "application/x-www-form-urlencoded; charset=UTF-8",
     "X-Requested-With" to "XMLHttpRequest"
 )
-
-const val BASE_URL = "https://www.steamgifts.com"
 
 class Parser {
     private var cachedHTML: Document? = null
@@ -105,7 +105,7 @@ class Parser {
 
     private fun getPage(url: String): Document? {
         val randomSleepTime = (3..7).random().toLong()
-        Thread.sleep(randomSleepTime * 1000)
+        TimeUnit.SECONDS.sleep(randomSleepTime)
 
         val page = try {
             parserInstance.newRequest(BASE_URL + url).get()

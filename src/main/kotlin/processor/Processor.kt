@@ -12,7 +12,6 @@ class Processor(val parser: Parser) {
         giveaways.sortedBy { it.price }.forEachIndexed { index, giveaway -> giveaway.priceRank = index }
         giveaways.sortedBy { it.participants }.forEachIndexed { index, giveaway -> giveaway.participantsRank = index }
         giveaways.sortedBy { it.performance }.forEachIndexed { index, giveaway -> giveaway.performanceRank = index }
-        giveaways.forEach { it.markAsProcessed() }
     }
 
     fun filterGiveaways(giveaways: List<Giveaway>, currentPoints: Int) =
@@ -23,11 +22,7 @@ class Processor(val parser: Parser) {
             println("Skipping ${giveaway.title}, reason: cache ")
             return false
         }
-
-        if (!giveaway.processed) {
-            println("Skipping ${giveaway.title}, reason: not processed")
-            return false
-        }
+        
 
         if (giveaway.price > currentPoints) {
             println("Skipping ${giveaway.title}, reason: not enough points")
