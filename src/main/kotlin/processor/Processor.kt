@@ -16,11 +16,16 @@ class Processor(val parser: Parser) {
     }
 
     fun filterGiveaways(giveaways: List<Giveaway>, currentPoints: Int) =
-        giveaways.filter { it.processed && it.price <= currentPoints }
+        giveaways.filter { it.price <= currentPoints }
 
     fun attemptJoinGiveaway(giveaway: Giveaway, currentPoints: Int): Boolean {
         if (giveawaysCache.contains(giveaway.url)) {
             println("Skipping ${giveaway.title}, reason: cache ")
+            return false
+        }
+
+        if (!giveaway.processed) {
+            println("Skipping ${giveaway.title}, reason: not processed")
             return false
         }
 
@@ -29,10 +34,10 @@ class Processor(val parser: Parser) {
             return false
         }
 
-        val canJoinGiveaway = parser.getCanJoinGiveaway(giveaway.url)
+        val canEnterGiveaway = parser.getCanEnterGiveaway(giveaway.url)
 
-        if (!canJoinGiveaway) {
-            println("Skipping ${giveaway.title}, reason: couldn't join giveaway")
+        if (!canEnterGiveaway) {
+            println("Skipping ${giveaway.title}, reason: couldn't enter giveaway")
             return false
         }
 

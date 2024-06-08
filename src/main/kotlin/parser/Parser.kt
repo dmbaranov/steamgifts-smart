@@ -66,8 +66,16 @@ class Parser {
         return null
     }
 
-    fun getCanJoinGiveaway(giveawayUrl: String): Boolean {
-        return false
+    fun getCanEnterGiveaway(giveawayUrl: String): Boolean {
+        val doc = this.getPage(giveawayUrl)
+
+        if (doc == null) {
+            return false
+        }
+
+        val enterGiveawayButton = doc.select("div[data-do=entry_insert]").first()
+
+        return enterGiveawayButton == null || enterGiveawayButton.hasClass("is-hidden")
     }
 
     private fun getIntValue(str: String): Int = str.filter { it.isDigit() }.toInt()

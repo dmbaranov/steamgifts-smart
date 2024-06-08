@@ -51,6 +51,7 @@ import org.steamgifts.processor.Processor
 fun main() {
     val parser = Parser()
     val processor = Processor(parser)
+    val giveaways = parser.getRawGiveaways()
     val points = parser.getCurrentPoints()
 
     if (points == null) {
@@ -58,7 +59,6 @@ fun main() {
         return
     }
 
-    val giveaways = parser.getRawGiveaways()
     val processedGiveaways = processor.filterGiveaways(giveaways, points).also { processor.processGiveaways(it) }
 
     processedGiveaways.forEach { giveaway ->
