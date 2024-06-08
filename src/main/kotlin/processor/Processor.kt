@@ -8,10 +8,22 @@ const val CACHE_SIZE = 200
 class Processor(val parser: Parser) {
     val giveawaysCache = mutableListOf<String>()
 
-    fun processGiveaways(giveaways: List<Giveaway>) {
-        giveaways.sortedBy { it.price }.forEachIndexed { index, giveaway -> giveaway.priceRank = index }
-        giveaways.sortedBy { it.participants }.forEachIndexed { index, giveaway -> giveaway.participantsRank = index }
-        giveaways.sortedBy { it.performance }.forEachIndexed { index, giveaway -> giveaway.performanceRank = index }
+    fun processGiveaways(giveaways: List<Giveaway>): List<Giveaway> {
+        val newList = giveaways.map { it.copy() }
+
+        val withPrice = newList
+            .sortedWith(compareBy<Giveaway> { it.price }.thenBy { it.participants })
+            .mapIndexed { index, giveaway -> giveaway.copy(priceRank = index) }
+
+        val withParticipants = withPrice
+            .sortedWith(compareBy<Giveaway> { it.participants }.thenBy { it.price })
+            .mapIndexed { index, giveaway -> giveaway.copy(participantsRank = index) }
+
+        val withPerformance = withParticipants
+            .sortedBy { it.performance }
+            .mapIndexed { index, giveaway -> giveaway.copy(performanceRank = index) }
+
+        return withPerformance
     }
 
     fun filterGiveaways(giveaways: List<Giveaway>, currentPoints: Int) =
@@ -22,7 +34,7 @@ class Processor(val parser: Parser) {
             println("Skipping ${giveaway.title}, reason: cache ")
             return false
         }
-        
+
 
         if (giveaway.price > currentPoints) {
             println("Skipping ${giveaway.title}, reason: not enough points")

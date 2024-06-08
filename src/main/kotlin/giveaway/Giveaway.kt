@@ -1,14 +1,20 @@
 package org.steamgifts.giveaway
 
 
-data class Giveaway(val title: String, val url: String, val price: Int, val participants: Int, val copies: Int) {
+data class Giveaway(
+    val title: String,
+    val url: String,
+    val price: Int,
+    val participants: Int,
+    val copies: Int,
+    val priceRank: Int = 0,
+    val participantsRank: Int = 0,
+    val performanceRank: Int = 0
+) {
     private val worth = 1
-    var priceRank = 0
-    var participantsRank = 0
-    var performanceRank = 0
     val code get() = url.split("/")[2]
-    val worthByPrice get() = worth / price
-    val worthByParticipants get() = worth / participants / copies
+    val worthByPrice get() = worth.toDouble() / price.toDouble()
+    val worthByParticipants get() = worth.toDouble() / participants.toDouble() / copies.toDouble()
     val performance get() = (worthByPrice + worthByParticipants) / 2
     val rank get() = (priceRank + participantsRank + performanceRank) / 3
 }
