@@ -13,7 +13,7 @@ val HEADERS = mapOf(
     "X-Requested-With" to "XMLHttpRequest"
 )
 
-const val BASE_URL = "https://steamgifts.com"
+const val BASE_URL = "https://www.steamgifts.com"
 
 class Parser {
     private var cachedHTML: Document? = null
@@ -66,8 +66,8 @@ class Parser {
         return null
     }
 
-    fun getCanEnterGiveaway(giveawayUrl: String): Boolean {
-        val doc = this.getPage(giveawayUrl)
+    fun enterGiveaway(giveaway: Giveaway): Boolean {
+        val doc = this.getPage(giveaway.url)
 
         if (doc == null) {
             return false
@@ -75,7 +75,30 @@ class Parser {
 
         val enterGiveawayButton = doc.select("div[data-do=entry_insert]").first()
 
-        return enterGiveawayButton == null || enterGiveawayButton.hasClass("is-hidden")
+        if (enterGiveawayButton == null || enterGiveawayButton.hasClass("is-hidden")) {
+            return false
+        }
+
+        val xsrfToken = doc.select("input[name=xsrf_token]").first()?.attr("value")
+
+        if (xsrfToken == null) {
+            return false
+        }
+
+        try {
+            val response = this.parserInstance.newRequest("$BASE_URL/ajax.php")
+                .method(Connection.Method.POST)
+                .data("xsrf_token", xsrfToken)
+                .data("do", "entry_insert")
+                .data("code", giveaway.code)
+                .execute()
+
+            return response.body().contains("success") && response.statusCode() in 200..299
+        } catch (e: Exception) {
+            println("Failed to enter giveaway")
+            println(e)
+            return false
+        }
     }
 
     private fun getIntValue(str: String): Int = str.filter { it.isDigit() }.toInt()

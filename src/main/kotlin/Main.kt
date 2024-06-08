@@ -60,8 +60,7 @@ fun main() {
     }
 
     val processedGiveaways = processor.filterGiveaways(giveaways, points).also { processor.processGiveaways(it) }
+    val sortedGiveaways = processedGiveaways.sortedBy { it.rank }
 
-    processedGiveaways.forEach { giveaway ->
-        processor.attemptJoinGiveaway(giveaway, points)
-    }
+    sortedGiveaways.forEach { processor.attemptJoinGiveaway(it, points) }
 }

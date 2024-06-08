@@ -7,6 +7,7 @@ class Giveaway(val title: String, val url: String, val price: Int, val participa
     var priceRank = 0
     var participantsRank = 0
     var performanceRank = 0
+    val code get() = url.split("/")[2]
     val worthByPrice get() = worth / price
     val worthByParticipants get() = worth / participants / copies
     val performance get() = (worthByPrice + worthByParticipants) / 2
@@ -15,11 +16,5 @@ class Giveaway(val title: String, val url: String, val price: Int, val participa
 
     fun markAsProcessed() {
         this.processed = true
-    }
-
-    fun joinGiveaway(): Boolean {
-        println("Joining $title with url $url, send POST request")
-
-        return true
     }
 }

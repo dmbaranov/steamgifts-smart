@@ -34,17 +34,10 @@ class Processor(val parser: Parser) {
             return false
         }
 
-        val canEnterGiveaway = parser.getCanEnterGiveaway(giveaway.url)
+        val enteredGiveaway = parser.enterGiveaway(giveaway)
 
-        if (!canEnterGiveaway) {
+        if (!enteredGiveaway) {
             println("Skipping ${giveaway.title}, reason: couldn't enter giveaway")
-            return false
-        }
-
-        val joinResult = giveaway.joinGiveaway()
-
-        if (!joinResult) {
-            println("Skipping ${giveaway.title}, reason: something went wrong")
             return false
         }
 
