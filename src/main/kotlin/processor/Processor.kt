@@ -1,11 +1,11 @@
 package org.steamgifts.processor
 
+import org.steamgifts.api.Api
 import org.steamgifts.giveaway.Giveaway
-import org.steamgifts.parser.Parser
 
 const val CACHE_SIZE = 200
 
-class Processor(val parser: Parser) {
+class Processor(val apiClient: Api) {
     val giveawaysCache = mutableListOf<String>()
 
     fun processGiveaways(giveaways: List<Giveaway>): List<Giveaway> {
@@ -41,7 +41,7 @@ class Processor(val parser: Parser) {
             return false
         }
 
-        val enteredGiveaway = parser.enterGiveaway(giveaway)
+        val enteredGiveaway = apiClient.enterGiveaway(giveaway)
 
         if (!enteredGiveaway) {
             println("Skipping ${giveaway.title}, reason: couldn't enter giveaway")

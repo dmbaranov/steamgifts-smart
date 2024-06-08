@@ -1,4 +1,4 @@
-package org.steamgifts.parser
+package org.steamgifts.api
 
 import org.jsoup.Connection
 import org.jsoup.Jsoup
@@ -15,9 +15,9 @@ val HEADERS = mapOf(
     "X-Requested-With" to "XMLHttpRequest"
 )
 
-class Parser {
+class Api {
     private var cachedHTML: Document? = null
-    private val parserInstance: Connection = Jsoup.connect(BASE_URL)
+    private val requests: Connection = Jsoup.connect(BASE_URL)
         .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36")
         .headers(HEADERS)
 
@@ -86,7 +86,7 @@ class Parser {
         }
 
         try {
-            val response = this.parserInstance.newRequest("$BASE_URL/ajax.php")
+            val response = this.requests.newRequest("$BASE_URL/ajax.php")
                 .method(Connection.Method.POST)
                 .data("xsrf_token", xsrfToken)
                 .data("do", "entry_insert")
@@ -108,7 +108,7 @@ class Parser {
         TimeUnit.SECONDS.sleep(randomSleepTime)
 
         val page = try {
-            parserInstance.newRequest(BASE_URL + url).get()
+            requests.newRequest(BASE_URL + url).get()
         } catch (e: Exception) {
             println("Error has occurred during HTML retrieval")
             println(e)

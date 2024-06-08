@@ -1,21 +1,21 @@
 package org.steamgifts
 
-import org.steamgifts.parser.Parser
+import org.steamgifts.api.Api
 import org.steamgifts.processor.Processor
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
 
 fun main() {
-    val parser = Parser()
-    val processor = Processor(parser)
+    val apiClient = Api()
+    val processor = Processor(apiClient)
     var loopCount = 0
 
     while (true) {
         println("Starting loop ${++loopCount}")
 
-        val giveaways = parser.getRawGiveaways()
-        val points = parser.getCurrentPoints()
+        val giveaways = apiClient.getRawGiveaways()
+        val points = apiClient.getCurrentPoints()
 
         if (points == null) {
             println("Cannot get points, something went wrong")
