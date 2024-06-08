@@ -15,7 +15,8 @@ class Processor(val parser: Parser) {
         giveaways.forEach { it.markAsProcessed() }
     }
 
-    fun filterGiveaways(giveaways: List<Giveaway>, currentPoints: Int) = giveaways.filter { it.price <= currentPoints }
+    fun filterGiveaways(giveaways: List<Giveaway>, currentPoints: Int) =
+        giveaways.filter { it.processed && it.price <= currentPoints }
 
     fun attemptJoinGiveaway(giveaway: Giveaway, currentPoints: Int): Boolean {
         if (giveawaysCache.contains(giveaway.url)) {

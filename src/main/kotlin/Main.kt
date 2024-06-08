@@ -51,16 +51,17 @@ import org.steamgifts.processor.Processor
 fun main() {
     val parser = Parser()
     val processor = Processor(parser)
-    var points = parser.getCurrentPoints()
+    val points = parser.getCurrentPoints()
+
+    if (points == null) {
+        println("Cannot get points, something went wrong")
+        return
+    }
+
     val giveaways = parser.getRawGiveaways()
     val processedGiveaways = processor.filterGiveaways(giveaways, points).also { processor.processGiveaways(it) }
 
     processedGiveaways.forEach { giveaway ->
-        processor.attemptJoinGiveaway(giveaway, points).also { joined ->
-            if (joined) {
-                points -= giveaway.price
-            }
-        }
+        processor.attemptJoinGiveaway(giveaway, points)
     }
 }
-

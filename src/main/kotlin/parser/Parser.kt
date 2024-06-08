@@ -1,99 +1,90 @@
 package org.steamgifts.parser
 
-import it.skrape.core.htmlDocument
-import it.skrape.fetcher.HttpFetcher
-import it.skrape.fetcher.extractIt
-import it.skrape.fetcher.skrape
-import it.skrape.selects.html5.div
+import org.jsoup.Connection
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.steamgifts.giveaway.Giveaway
-import java.util.ArrayList
+
 
 val HEADERS = mapOf(
     "Accept" to "application/json, text/javascript, */*; q=0.01",
-//    "Accept-Encoding" to "gzip, deflate, br",
-//    "Content-Type" to "application/x-www-form-urlencoded; charset=UTF-8",
-    "User-Agent" to "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36",
+    "Accept-Encoding" to "gzip, deflate, br",
+    "Content-Type" to "application/x-www-form-urlencoded; charset=UTF-8",
     "X-Requested-With" to "XMLHttpRequest"
 )
 
+const val BASE_URL = "https://steamgifts.com"
+
 class Parser {
+    private var cachedHTML: Document? = null
+    private val parserInstance: Connection = Jsoup.connect(BASE_URL)
+        .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36")
+        .headers(HEADERS)
+
     fun getRawGiveaways(): List<Giveaway> {
-        return skrape(HttpFetcher) {
-            request {
-                url = "https://steamgifts.com"
-                headers = HEADERS
-            }
+        val doc = this.getPage("/")
 
-            extractIt<ArrayList<Giveaway>> {
-                htmlDocument {
-                    relaxed = true
-
-                    div {
-                        withClass = "giveaway__row-outer-wrap"
-                        findAll {
-                            forEach { giveawayContainer ->
-                                val giveaway = Giveaway(
-                                    title = giveawayContainer.findFirst(".giveaway__heading__name") { text },
-                                    url = giveawayContainer.findFirst(".giveaway__heading__name") { attribute("href") },
-                                    participants = giveawayContainer.findFirst(".giveaway__links a") { getIntValue(text) },
-                                    price = giveawayContainer.findLast(".giveaway__heading__thin") { getIntValue(text) },
-                                    copies = giveawayContainer.findFirst(".giveaway__heading__thin") {
-                                        if (text.contains("Copies")) getIntValue(text) else 1
-                                    }
-                                )
-
-                                it.add(giveaway)
-                            }
-                        }
-                    }
-                }
-            }
+        if (doc == null) {
+            return listOf()
         }
+
+        val giveaways = try {
+            doc.select("[data-game-id]").map {
+                Giveaway(
+                    title = it.select(".giveaway__heading__name").text(),
+                    url = it.select(".giveaway__heading__name").attr("href"),
+                    participants = this.getIntValue(it.select(".giveaway__links a").first()!!.text()),
+                    price = this.getIntValue(it.select(".giveaway__heading__thin").last()!!.text()),
+                    copies = it.select(".giveaway__heading__thin").first()!!.text().let {
+                        if (it.contains("Copies")) getIntValue(it) else 1
+                    }
+                )
+            }
+        } catch (e: Exception) {
+            println("Could not parse giveaways")
+            println(e)
+            return listOf()
+        }
+
+        return giveaways
     }
 
-    fun getCurrentPoints(): Int {
-        return 1
-        return skrape(HttpFetcher) {
-            request {
-                url = "https://steamgifts.com"
-                headers = HEADERS
-            }
+    fun getCurrentPoints(cached: Boolean = true): Int? {
+        val doc = if (cached && cachedHTML != null) cachedHTML else this.getPage("/")
 
-            extractIt<Int> {
-                htmlDocument {
-                    relaxed = true
-
-                    div {
-                        withClass = "nav__right-container"
-                        findFirst { getIntValue(text) }
-                    }
-                }
-            }
+        if (doc == null) {
+            return null
         }
+
+
+        val pointsElement = doc.select(".nav__points").first()
+
+        if (pointsElement != null) {
+            return getIntValue(pointsElement.text())
+        }
+
+        return null
     }
 
     fun getCanJoinGiveaway(giveawayUrl: String): Boolean {
-        return skrape(HttpFetcher) {
-            request {
-                url = giveawayUrl
-                headers = HEADERS
-            }
-
-            extractIt<Boolean> {
-                htmlDocument {
-                    relaxed = true
-
-                    div {
-                        withClass = ".sidebar__entry-insert:not(is-hidden)"
-                        findAll {
-                            size == 1
-                        }
-                    }
-                }
-            }
-        }
+        return false
     }
 
-
     private fun getIntValue(str: String): Int = str.filter { it.isDigit() }.toInt()
+
+    private fun getPage(url: String): Document? {
+        val randomSleepTime = (3..7).random().toLong()
+        Thread.sleep(randomSleepTime * 1000)
+
+        val page = try {
+            parserInstance.newRequest(BASE_URL + url).get()
+        } catch (e: Exception) {
+            println("Error has occurred during HTML retrieval")
+            println(e)
+            null
+        }
+
+        return page.also { cachedHTML = it }
+
+    }
 }

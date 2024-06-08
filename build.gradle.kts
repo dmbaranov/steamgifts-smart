@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("it.skrape:skrapeit:1.2.2")
+    implementation("org.jsoup:jsoup:1.17.2")
 }
 
 tasks.test {
