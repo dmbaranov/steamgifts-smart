@@ -2,12 +2,15 @@ package org.steamgifts
 
 import org.steamgifts.api.Api
 import org.steamgifts.processor.Processor
+import java.util.Properties
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
 
 fun main() {
-    val apiClient = Api()
+    val config = ConfigLoader.loadConfig()
+
+    val apiClient = Api(config.getProperty("AUTH_COOKIE"))
     val processor = Processor(apiClient)
     var loopCount = 0
 
@@ -31,5 +34,14 @@ fun main() {
 
         println("Loop done, going to sleep")
         TimeUnit.MINUTES.sleep((120..180).random().toLong())
+    }
+}
+
+object ConfigLoader {
+    fun loadConfig(): Properties {
+        val props = this.javaClass.classLoader.getResourceAsStream("application.properties")
+            .use { Properties().apply { load(it) } }
+
+        return props
     }
 }

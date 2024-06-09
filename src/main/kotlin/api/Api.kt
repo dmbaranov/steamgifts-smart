@@ -15,11 +15,12 @@ val HEADERS = mapOf(
     "X-Requested-With" to "XMLHttpRequest"
 )
 
-class Api {
+class Api(private val authCookie: String) {
     private var cachedHTML: Document? = null
     private val requests: Connection = Jsoup.connect(BASE_URL)
         .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36")
         .headers(HEADERS)
+        .cookie("PHPSESSID", this.authCookie)
 
     fun getRawGiveaways(): List<Giveaway> {
         val doc = this.getPage("/")
