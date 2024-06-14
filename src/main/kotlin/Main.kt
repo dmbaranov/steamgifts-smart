@@ -1,6 +1,7 @@
 package org.steamgifts
 
-import org.steamgifts.api.Api
+import org.steamgifts.api.SteamgiftsApi
+import org.steamgifts.logger.Logger
 import org.steamgifts.processor.Processor
 import java.util.Properties
 import java.util.concurrent.TimeUnit
@@ -10,29 +11,29 @@ import kotlin.system.exitProcess
 fun main() {
     val config = ConfigLoader.loadConfig()
 
-    val apiClient = Api(config.getProperty("AUTH_COOKIE"))
-    val processor = Processor(apiClient)
+    val steamgiftsApi = SteamgiftsApi(config.getProperty("AUTH_COOKIE"))
+    val processor = Processor(steamgiftsApi)
     var loopCount = 0
 
     while (true) {
-        println("Starting loop ${++loopCount}")
+        Logger.log("Starting loop ${++loopCount}")
 
-        val giveaways = apiClient.getRawGiveaways()
-        val points = apiClient.getCurrentPoints()
+        val giveaways = steamgiftsApi.getRawGiveaways()
+        val points = steamgiftsApi.getCurrentPoints()
 
         if (points == null) {
-            println("Cannot get points, something went wrong")
+            Logger.error("Cannot get points, something went wrong")
             exitProcess(1)
         }
 
         val processedGiveaways = processor.filterGiveaways(giveaways, points).also { processor.processGiveaways(it) }
         val sortedGiveaways = processedGiveaways.sortedBy { it.rank }
 
-        println("Handling ${sortedGiveaways.size}, current points: $points")
+        Logger.log("Handling ${sortedGiveaways.size}, current points: $points")
 
         sortedGiveaways.forEach { processor.attemptJoinGiveaway(it, points) }
 
-        println("Loop done, going to sleep")
+        Logger.log("Loop done, going to sleep")
         TimeUnit.MINUTES.sleep((120..180).random().toLong())
     }
 }

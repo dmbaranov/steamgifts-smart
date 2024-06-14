@@ -2,6 +2,7 @@ package org.steamgifts.processor
 
 import org.steamgifts.api.Api
 import org.steamgifts.giveaway.Giveaway
+import org.steamgifts.logger.Logger
 
 const val CACHE_SIZE = 200
 
@@ -31,24 +32,24 @@ class Processor(val apiClient: Api) {
 
     fun attemptJoinGiveaway(giveaway: Giveaway, currentPoints: Int): Boolean {
         if (giveawaysCache.contains(giveaway.url)) {
-            println("Skipping ${giveaway.title}, reason: cache ")
+            Logger.log("Skipping ${giveaway.title}, reason: cache ")
             return false
         }
 
 
         if (giveaway.price > currentPoints) {
-            println("Skipping ${giveaway.title}, reason: not enough points")
+            Logger.log("Skipping ${giveaway.title}, reason: not enough points")
             return false
         }
 
         val enteredGiveaway = apiClient.enterGiveaway(giveaway)
 
         if (!enteredGiveaway) {
-            println("Skipping ${giveaway.title}, reason: couldn't enter giveaway")
+            Logger.log("Skipping ${giveaway.title}, reason: couldn't enter giveaway")
             return false
         }
 
-        println("Joined giveaway ${giveaway.title}")
+        Logger.log("Joined giveaway ${giveaway.title}")
         cacheGiveaway(giveaway)
         return true
     }
