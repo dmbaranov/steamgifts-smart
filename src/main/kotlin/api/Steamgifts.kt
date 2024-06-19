@@ -52,7 +52,6 @@ class SteamgiftsApi(private val authCookie: String) : Api {
     }
 
     override suspend fun getCurrentPoints(cached: Boolean): Int? {
-        // TODO: check if it's true from the interface
         val doc = if (cached && cachedHTML != null) cachedHTML else this.getPage("/")
 
         if (doc == null) {
@@ -115,7 +114,6 @@ class SteamgiftsApi(private val authCookie: String) : Api {
             null
         }
 
-        // TODO: assign only if not null
-        return page.also { cachedHTML = it }
+        return page.also { cachedHTML = it ?: cachedHTML }
     }
 }
