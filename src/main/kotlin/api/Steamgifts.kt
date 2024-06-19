@@ -1,11 +1,12 @@
 package org.steamgifts.api
 
+import kotlinx.coroutines.delay
 import org.jsoup.Connection
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.steamgifts.giveaway.Giveaway
 import org.steamgifts.logger.Logger
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 
 const val BASE_URL = "https://www.steamgifts.com"
@@ -23,7 +24,7 @@ class SteamgiftsApi(private val authCookie: String) : Api {
         .headers(HEADERS)
         .cookie("PHPSESSID", this.authCookie)
 
-    override fun getRawGiveaways(): List<Giveaway> {
+    override suspend fun getRawGiveaways(): List<Giveaway> {
         val doc = this.getPage("/")
 
         if (doc == null) {
@@ -50,7 +51,7 @@ class SteamgiftsApi(private val authCookie: String) : Api {
         return giveaways
     }
 
-    override fun getCurrentPoints(cached: Boolean): Int? {
+    override suspend fun getCurrentPoints(cached: Boolean): Int? {
         // TODO: check if it's true from the interface
         val doc = if (cached && cachedHTML != null) cachedHTML else this.getPage("/")
 
@@ -68,7 +69,7 @@ class SteamgiftsApi(private val authCookie: String) : Api {
         return null
     }
 
-    override fun enterGiveaway(giveaway: Giveaway): Boolean {
+    override suspend fun enterGiveaway(giveaway: Giveaway): Boolean {
         val doc = this.getPage(giveaway.url)
 
         if (doc == null) {
@@ -104,9 +105,8 @@ class SteamgiftsApi(private val authCookie: String) : Api {
 
     private fun getIntValue(str: String): Int = str.filter { it.isDigit() }.toInt()
 
-    private fun getPage(url: String): Document? {
-        val randomSleepTime = (3..7).random().toLong()
-        TimeUnit.SECONDS.sleep(randomSleepTime)
+    private suspend fun getPage(url: String): Document? {
+        delay((3..7).random().seconds)
 
         val page = try {
             requests.newRequest(BASE_URL + url).get()
@@ -115,6 +115,7 @@ class SteamgiftsApi(private val authCookie: String) : Api {
             null
         }
 
+        // TODO: assign only if not null
         return page.also { cachedHTML = it }
     }
 }

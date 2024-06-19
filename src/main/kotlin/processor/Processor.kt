@@ -30,7 +30,7 @@ class Processor(val apiClient: Api) {
     fun filterGiveaways(giveaways: List<Giveaway>, currentPoints: Int) =
         giveaways.filter { it.price <= currentPoints }
 
-    fun attemptJoinGiveaway(giveaway: Giveaway, currentPoints: Int): Boolean {
+    suspend fun attemptJoinGiveaway(giveaway: Giveaway, currentPoints: Int): Boolean {
         if (giveawaysCache.contains(giveaway.url)) {
             Logger.log("Skipping ${giveaway.title}, reason: cache ")
             return false
