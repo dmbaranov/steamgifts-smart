@@ -36,7 +36,7 @@ class SteamgiftsApi(private val authCookie: String) : Api {
                 Giveaway(
                     title = it.select(".giveaway__heading__name").text(),
                     url = it.select(".giveaway__heading__name").attr("href"),
-                    participants = this.getIntValue(it.select(".giveaway__links a").first()!!.text()),
+                    rawParticipants = this.getIntValue(it.select(".giveaway__links a").first()!!.text()),
                     price = this.getIntValue(it.select(".giveaway__heading__thin").last()!!.text()),
                     copies = it.select(".giveaway__heading__thin").first()!!.text().let {
                         if (it.contains("Copies")) getIntValue(it) else 1
