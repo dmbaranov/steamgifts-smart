@@ -15,6 +15,6 @@ data class Giveaway(
     val code get() = url.split("/")[2]
     val worthByPrice get() = worth.toDouble() / price.toDouble()
     val worthByParticipants get() = worth.toDouble() / participants.toDouble() / copies.toDouble()
-    val performance get() = (worthByPrice + worthByParticipants) / 2
-    val rank get() = (priceRank + participantsRank + performanceRank) / 3
+    val performance get() = (worthByPrice + worthByParticipants).toDouble() / 2.toDouble()
+    val rank get() = (priceRank + participantsRank + performanceRank).toDouble() / 3.toDouble()
 }

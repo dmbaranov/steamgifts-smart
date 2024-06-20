@@ -21,10 +21,10 @@ class Processor(val apiClient: Api) {
             .mapIndexed { index, giveaway -> giveaway.copy(participantsRank = index) }
 
         val withPerformance = withParticipants
-            .sortedBy { it.performance }
+            .sortedByDescending { it.performance }
             .mapIndexed { index, giveaway -> giveaway.copy(performanceRank = index) }
 
-        return withPerformance
+        return withPerformance.sortedBy { it.rank }
     }
 
     fun filterGiveaways(giveaways: List<Giveaway>, currentPoints: Int) =

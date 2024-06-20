@@ -43,12 +43,11 @@ suspend fun startLoop(api: Api) {
             exitProcess(1)
         }
 
-        val processedGiveaways = processor.filterGiveaways(giveaways, points).also { processor.processGiveaways(it) }
-        val sortedGiveaways = processedGiveaways.sortedBy { it.rank }
+        val processedGiveaways = processor.filterGiveaways(giveaways, points).let { processor.processGiveaways(it) }
 
-        Logger.log("Handling ${sortedGiveaways.size}, current points: $points")
+        Logger.log("Handling ${processedGiveaways.size}, current points: $points")
 
-        sortedGiveaways.forEach { processor.attemptJoinGiveaway(it, points) }
+        processedGiveaways.forEach { processor.attemptJoinGiveaway(it, points) }
 
         Logger.log("Loop done, going to sleep")
         delay((120..180).random().minutes)
