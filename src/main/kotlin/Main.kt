@@ -45,7 +45,7 @@ suspend fun startLoop(api: Api) {
 
         val processedGiveaways = processor.filterGiveaways(giveaways, points).let { processor.processGiveaways(it) }
 
-        Logger.log("Handling ${processedGiveaways.size}, current points: $points")
+        Logger.log("Handling ${processedGiveaways.size} giveaways, current points: $points")
 
         processedGiveaways.forEach { processor.attemptJoinGiveaway(it, points) }
 

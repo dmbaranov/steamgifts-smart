@@ -36,16 +36,19 @@ class Processor(val apiClient: Api) {
             return false
         }
 
-
         if (giveaway.price > currentPoints) {
             Logger.log("Skipping ${giveaway.title}, reason: not enough points")
             return false
         }
 
-        val enteredGiveaway = apiClient.enterGiveaway(giveaway)
+        val enteredGiveaway = try {
+            apiClient.enterGiveaway(giveaway)
+        } catch (e: Exception) {
+            Logger.log("Skipping ${giveaway.title}, reason: ${e.message}")
+            false
+        }
 
         if (!enteredGiveaway) {
-            Logger.log("Skipping ${giveaway.title}, reason: couldn't enter giveaway")
             return false
         }
 

@@ -72,19 +72,19 @@ class SteamgiftsApi(private val authCookie: String) : Api {
         val doc = this.getPage(giveaway.url)
 
         if (doc == null) {
-            return false
+            throw Exception("could not receive giveaway page")
         }
 
         val enterGiveawayButton = doc.select("div[data-do=entry_insert]").first()
 
         if (enterGiveawayButton == null || enterGiveawayButton.hasClass("is-hidden")) {
-            return false
+            throw Exception("no enter button")
         }
 
         val xsrfToken = doc.select("input[name=xsrf_token]").first()?.attr("value")
 
         if (xsrfToken == null) {
-            return false
+            throw Exception("no xsrf token")
         }
 
         try {
@@ -98,7 +98,7 @@ class SteamgiftsApi(private val authCookie: String) : Api {
             return response.body().contains("success") && response.statusCode() in 200..299
         } catch (e: Exception) {
             Logger.error("Failed to enter giveaway", e)
-            return false
+            throw Exception("enter request failed")
         }
     }
 
