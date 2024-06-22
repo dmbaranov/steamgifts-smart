@@ -24,7 +24,7 @@ object ConfigLoader {
 
 fun main(): Unit = runBlocking {
     val config = ConfigLoader.loadConfig()
-    val steamgiftsApi = SteamgiftsApi(config.getProperty("AUTH_COOKIE"))
+    val steamgiftsApi = SteamgiftsApi(config.getProperty("STEAMGIFTS_AUTH_COOKIE"))
 
     launch(Dispatchers.Default) { startLoop(steamgiftsApi) }
 }
