@@ -8,6 +8,7 @@ version = "1.0-SNAPSHOT"
 
 application {
     mainClass = "org.steamgifts.MainKt"
+    applicationName = "steamgifts"
 }
 
 repositories {
@@ -25,4 +26,10 @@ tasks.test {
 }
 kotlin {
     jvmToolchain(21)
+}
+
+distributions {
+    main {
+        distributionBaseName.set("steamgifts")
+    }
 }
