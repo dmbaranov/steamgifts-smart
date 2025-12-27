@@ -30,15 +30,15 @@ class Processor(val apiClient: Api) {
     fun filterGiveaways(giveaways: List<Giveaway>, currentPoints: Int) =
         giveaways.filter { it.price <= currentPoints }
 
-    suspend fun attemptJoinGiveaway(giveaway: Giveaway, currentPoints: Int): Boolean {
+    suspend fun attemptJoinGiveaway(giveaway: Giveaway, currentPoints: Int) {
         if (giveawaysCache.contains(giveaway.url)) {
             Logger.log("Skipping ${giveaway.title}, reason: cache ")
-            return false
+            return
         }
 
         if (giveaway.price > currentPoints) {
             Logger.log("Skipping ${giveaway.title}, reason: not enough points")
-            return false
+            return
         }
 
         val enteredGiveaway = try {
@@ -48,13 +48,10 @@ class Processor(val apiClient: Api) {
             false
         }
 
-        if (!enteredGiveaway) {
-            return false
+        if (enteredGiveaway) {
+            Logger.log("Joined giveaway ${giveaway.title}")
+            cacheGiveaway(giveaway)
         }
-
-        Logger.log("Joined giveaway ${giveaway.title}")
-        cacheGiveaway(giveaway)
-        return true
     }
 
     private fun cacheGiveaway(giveaway: Giveaway) {
