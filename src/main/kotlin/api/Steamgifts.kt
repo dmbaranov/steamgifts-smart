@@ -63,6 +63,11 @@ class SteamgiftsApi(
         return response.contains("success")
     }
 
+    override fun hasWonGiveaway(): Boolean {
+        val doc = cachedHTML ?: return false
+        return doc.select(".fa-trophy ~ .nav__notification.fade_infinite").isNotEmpty()
+    }
+
     private fun getIntValue(str: String): Int = str.filter { it.isDigit() }.toInt()
 
     private suspend fun getPage(url: String): Document? {

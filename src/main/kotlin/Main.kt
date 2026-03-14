@@ -10,6 +10,7 @@ import org.steamgifts.api.SteamgiftsApi
 import org.steamgifts.logger.Logger
 import org.steamgifts.processor.Processor
 import org.steamgifts.utils.FlareSolverr
+import org.steamgifts.utils.Telegram
 import java.util.Properties
 import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.minutes
@@ -30,10 +31,18 @@ fun main(): Unit = runBlocking {
     val flareSolverr = FlareSolverr(flareSolverrUrl)
     val steamgiftsApi = SteamgiftsApi(config.getProperty("STEAMGIFTS_AUTH_COOKIE"), flareSolverr)
 
-    launch(Dispatchers.Default) { startLoop(steamgiftsApi) }
+    val telegramToken = System.getenv("TELEGRAM_BOT_TOKEN")
+        ?: config.getProperty("TELEGRAM_BOT_TOKEN", "")
+    val telegramChatId = System.getenv("TELEGRAM_CHAT_ID")
+        ?: config.getProperty("TELEGRAM_CHAT_ID", "")
+    val telegram = if (telegramToken.isNotEmpty() && telegramChatId.isNotEmpty()) {
+        Telegram(telegramToken, telegramChatId)
+    } else null
+
+    launch(Dispatchers.Default) { startLoop(steamgiftsApi, telegram) }
 }
 
-suspend fun startLoop(api: Api) {
+suspend fun startLoop(api: Api, telegram: Telegram?) {
     val processor = Processor(api)
     var loopCount = 0
 
@@ -41,6 +50,11 @@ suspend fun startLoop(api: Api) {
         Logger.log("Starting loop ${++loopCount}")
         val giveaways = api.getRawGiveaways()
         val points = api.getCurrentPoints()
+
+        if (api.hasWonGiveaway()) {
+            Logger.log("Won a giveaway!")
+            telegram?.sendSilentMessage("You won a giveaway on SteamGifts! Check https://www.steamgifts.com/giveaways/won")
+        }
 
         if (points == null) {
             Logger.error("Cannot get points, something went wrong")

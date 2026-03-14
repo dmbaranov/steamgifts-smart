@@ -8,4 +8,6 @@ interface Api {
     suspend fun getCurrentPoints(cached: Boolean = true): Int?
 
     suspend fun enterGiveaway(giveaway: Giveaway): Boolean
+
+    fun hasWonGiveaway(): Boolean
 }
