@@ -9,6 +9,7 @@ import org.steamgifts.api.Api
 import org.steamgifts.api.SteamgiftsApi
 import org.steamgifts.logger.Logger
 import org.steamgifts.processor.Processor
+import org.steamgifts.utils.FlareSolverr
 import java.util.Properties
 import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.minutes
@@ -24,7 +25,10 @@ object ConfigLoader {
 
 fun main(): Unit = runBlocking {
     val config = ConfigLoader.loadConfig()
-    val steamgiftsApi = SteamgiftsApi(config.getProperty("STEAMGIFTS_AUTH_COOKIE"))
+    val flareSolverrUrl = System.getenv("FLARESOLVERR_URL")
+        ?: config.getProperty("FLARESOLVERR_URL", "http://localhost:8191/v1")
+    val flareSolverr = FlareSolverr(flareSolverrUrl)
+    val steamgiftsApi = SteamgiftsApi(config.getProperty("STEAMGIFTS_AUTH_COOKIE"), flareSolverr)
 
     launch(Dispatchers.Default) { startLoop(steamgiftsApi) }
 }
